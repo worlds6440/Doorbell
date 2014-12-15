@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+	{% if submitted %}
+    <h2>{{ submitted }}</h2>
+    {% endif %}
+
+    <h1>Light Colour (RGB)</h1>
+	<form action="/" method="POST">
+		<label for="red">Red:</label><input type="number" step="1" value="{{ led_red }}" name="led_red" class="rgb_frame" maxlength="3"/>
+		<label for="red">Green:</label><input type="number" step="1" value="{{ led_green }}" name="led_green" class="rgb_frame" maxlength="3"/>
+		<label for="red">Blue:</label><input type="number" step="1" value="{{ led_blue }}" name="led_blue" class="rgb_frame" maxlength="3"/>
+		<br><br>
+		<input type="submit" value="Set">
+	</form>
+	
+	<hr>
+	
+	<h1>Doorbell</h1>
+	<form action="/ring/" method="POST">
+		<input type="submit" value="Ring">
+	</form>
+	
+    <h1>Client List</h1>
+	<ul>
+		{% for client in socket_list %}
+		<li><a href="http://{{ client }}:5000">{{ client }}</a></li>
+		{% endfor %}
+	</ul>
+	<hr>
+	
+	<h1>Reboot</h1>
+	<form action="/reboot/" method="POST">
+		<input type="submit" value="Reboot">
+	</form>
+	
+{% endblock %}
