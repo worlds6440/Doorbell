@@ -9,16 +9,20 @@ import time
 import socket
 import subprocess
 
+isServer = True
+
 flask_app = flask.Flask("Flask_App")
 
 # Door Bell Server
-doorbell_s = DoorBell_Server.DoorBell_Server()
-# Kick off new thread listening for new sockets
-Thread_1 = threading.Thread(target=doorbell_s.SocketServer)
-Thread_1.start()
-# Kick off new thread listening for doorbell events
-Thread_2 = threading.Thread(target=doorbell_s.main)
-Thread_2.start()
+doorbell_s = None
+if isServer:
+	doorbell_s = DoorBell_Server.DoorBell_Server()
+	# Kick off new thread listening for new sockets
+	Thread_1 = threading.Thread(target=doorbell_s.SocketServer)
+	Thread_1.start()
+	# Kick off new thread listening for doorbell events
+	Thread_2 = threading.Thread(target=doorbell_s.main)
+	Thread_2.start()
 
 # Door Bell Client
 doorbell_c = DoorBell_Client.DoorBell_Client()
@@ -27,11 +31,13 @@ Thread_3 = threading.Thread(target=doorbell_c.SocketClient)
 Thread_3.start()
 
 # Porch Lights
-porchlight = PorchLights.PorchLights(r_led_count=5, max_rgb_value=255)
-porchlight.constructor()
-# Change the number of LEDs for r_led_count
-Thread_4 = threading.Thread(target=porchlight.run)
-Thread_4.start()
+porchlight = None
+if isServer:
+	porchlight = PorchLights.PorchLights(r_led_count=5, max_rgb_value=255)
+	porchlight.constructor()
+	# Change the number of LEDs for r_led_count
+	Thread_4 = threading.Thread(target=porchlight.run)
+	Thread_4.start()
 
 def hex_to_rgb(hex_str):
 	# Simple method to convert hex colour to RGB
@@ -150,8 +156,11 @@ try:
 	flask_app.run(host='0.0.0.0', debug=False)
 except (KeyboardInterrupt, SystemExit):
 	# Tell threads to quit
-	doorbell_s.set_exit()
-	doorbell_c.set_exit()
-	porchlight.set_exit()
+	if doorbell_s != None:
+		doorbell_s.set_exit()
+	if doorbell_c != None:
+		doorbell_c.set_exit()
+	if porchlight != None:
+		porchlight.set_exit()
 	# Then quit
 	sys.exit(0)
