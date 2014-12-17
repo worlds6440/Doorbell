@@ -7,5 +7,5 @@
 
 cd /
 cd home/pi/Doorbell
-sudo python flask_app &
+sudo python flask_app.py &
 cd /
