@@ -7,7 +7,7 @@ My old standard doorbell ringer wasn't powerful enough to be heard throughout th
 
 To install:
  - Clone the project:
- - cd /
+ - cd /home/pi/
  - git clone git://github.com/worlds6440/Doorbell
 
  - Run sudo crontab -e and add the following line:
