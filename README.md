@@ -7,8 +7,8 @@ My old standard doorbell ringer wasn't powerful enough to be heard throughout th
 
 To install:
  - Clone the project:
-cd /
-git clone git://github.com/worlds6440/Doorbell
+ - cd /
+ - git clone git://github.com/worlds6440/Doorbell
 
  - Run sudo crontab -e and add the following line:
-@reboot sh /home/pi/Doorbell/launcher_flask.sh >/home/pi/Doorbell/logs/cronlog 2>&1
+ - @reboot sh /home/pi/Doorbell/launcher_flask.sh >/home/pi/Doorbell/logs/cronlog 2>&1
