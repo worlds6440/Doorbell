@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+	{% if submitted %}
+    <h2>{{ submitted }}</h2>
+    {% endif %}
+
+    <h1>Doorbell Log</h1>
+	<ul>
+		{% for date in doorbell_log %}
+		<li>{{ date }}</li>
+		{% endfor %}
+	</ul>
+	<hr>
+	
+{% endblock %}
