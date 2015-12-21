@@ -1,9 +1,12 @@
+#!/usr/bin/env python
 import sys
 import threading
 import subprocess
 import RPi.GPIO as GPIO
 import time
 import socket
+import os.path
+import smtplib
 
 class DoorBell_Server:
 	def __init__(self):
@@ -16,9 +19,11 @@ class DoorBell_Server:
 		self.serversock = None
 		self.pin_button = 23
 		self.pin_led = 24
+		self.time_email = 0 # time we last sent an email notification
+		self.time_email_gap = 30.0 # Minimum time in seconds between email notifications
 		self.time_pressed_last = time.time()
 		self.time_released_last = time.time()
-		self.time_gap = 0.1 # time gap in seconds
+		self.time_gap = 1.0 # time gap in seconds
 		self.playing = [] # List of dings and dongs
 		self.limit_number = 4
 		self.time_held_limit = 1 # max time allowed for holding button
@@ -81,7 +86,7 @@ class DoorBell_Server:
 			try:
 				clientsock.send("OpenConn")
 				rec_data = clientsock.recv(self.BUFF)
-			except timeout:
+			except socket.timeout:
 				# If failed, it probably means timeout situation
 				clientsock.close()
 
@@ -94,7 +99,35 @@ class DoorBell_Server:
 				self.socketList.append(clientsock)
 			finally:
 				self.lock.release()
+
+			#self.WriteSocketsToFile();
 		return
+
+	#def GetSocketsFromFile(self):
+	#	# Read the log file and return the list of entries
+	#	filename = "sockets.txt"
+	#	logs = ["No Entires"]
+	#	with open(filename, "r") as myfile:
+	#		logs = [x.strip('\n') for x in myfile.readlines()]
+	#		myfile.close()
+	#	return logs
+
+	#def WriteSocketsToFile(self):
+	#	# Write all current sockets to a log file
+	#	# Grab the lock to the list of sockets
+	#	filename = "sockets.txt"
+	#	with open(filename, "w+") as myfile:
+	#		self.lock.acquire()
+	#		try:
+	#			index = 0
+	#			destroyList = []
+	#			for x in self.socketList:
+	#				myfile.write( x.getpeername()[0] + "\n" )
+	#		finally:
+	#			# Release the list of sockets
+	#			self.lock.release()
+	#		myfile.close()
+	#	return
 
 	def SendToSockets(self, message):
 		# Send DING/DONG to all sockets
@@ -131,7 +164,7 @@ class DoorBell_Server:
 				s.send(message)
 				# Wait for response, if timeout occurs, we must flag this socket as inactive
 				rec_data = s.recv(self.BUFF)
-			except timeout:
+			except socket.timeout:
 				# Timeout occured
 				s.shutdown(socket.SHUT_RDWR)
 				s.close()
@@ -140,17 +173,59 @@ class DoorBell_Server:
 
 	def get_socket_list(self):
 		# Return a list of string host names that are connected to this doorbell
-		list = [] #["192.168.1.248", "192.168.1.59"]		
+		list = []		
 		# Grab the lock to the list of sockets
 		self.lock.acquire()
 		try:
 			# Fill list with socket information
-			for socket in self.socketList:
-				list.append( socket.gethostname() )
+			for x in self.socketList:
+				if x != None:
+					#list.append( socket.gethostname() )
+					list.append( x.getpeername()[0] )
+				else:
+					list.append( "Empty Socket" )
 		finally:
 			# Release the list of sockets
 			self.lock.release()
+		if not list:
+			list = ["No open Sockets"]
 		return list
+
+	def SendEmail(self):
+		# Attempt to send an email notification
+		# Note that the TO variable must be a list, and that you have 
+		# to add the From, To, and Subject headers to the message yourself
+		LOGIN    = "worlds6440@gmail.com"
+		PASSWORD = "subaru0utback"
+
+		FROMADDR = "worlds6440@gmail.com"
+		TOADDRS  = ["worlds6440@gmail.com"]
+		SUBJECT  = "Doorbell Pressed"
+		TEXT = "The doorbell was just pressed."
+
+		# Prepare message headers
+		msg = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
+			% (FROMADDR, ", ".join(TOADDRS), SUBJECT) )
+
+		# Message body
+		localtime = time.asctime( time.localtime(time.time()) )
+		msg += "Doorbell pressed (" + localtime + ")\r\n"
+
+		# Send the mail
+		try:
+			server = smtplib.SMTP('smtp.gmail.com', 587)
+			server.set_debuglevel(0) # Debug output == 1
+			server.ehlo()
+			server.starttls()
+			server.login(LOGIN, PASSWORD)
+			server.sendmail(FROMADDR, TOADDRS, msg)
+			server.quit()
+			if self.DEBUG:
+				print "Successfully sent email"
+		except SMTPException:
+			if self.DEBUG:
+				print "Error: unable to send email"
+		return
 	
 	def Ding(self):
 		# Thin out audio playing list
@@ -228,7 +303,17 @@ class DoorBell_Server:
 				print("Button pressed!")
 
 			self.isPressed = True
+			self.AppendDateToFile()
 			self.Ding()
+
+			# Send Email Notification in new thread
+			time_now = time.time()
+			time_diff = time_now - self.time_email
+			if time_diff >= self.time_email_gap:
+				# Only send email if time since last email is longer than set gap
+				self.time_email = time_now
+				t_email = threading.Thread(target=self.SendEmail)
+				t_email.start()
 
 			# Remember last successful button press
 			self.time_pressed_last = time_now
@@ -252,6 +337,26 @@ class DoorBell_Server:
 
 		# Reset variable
 		self.veto_release = False
+
+	def AppendDateToFile(self):
+		# Append to file (will create if didnt already exist)
+		filename = "doorbell.txt"
+		with open(filename, "a+") as myfile:
+			localtime = time.asctime( time.localtime(time.time()) )
+			myfile.write("Doorbell " + localtime + "\n")
+			myfile.close()
+
+	def GetLogsFromFile(self):
+		# Read the log file and return the list of entries
+		filename = "doorbell.txt"
+		logs = ["No Entires"]
+		with open(filename, "r") as myfile:
+			logs = [x.strip('\n') for x in myfile.readlines()]
+			myfile.close()
+		# Log is returned in ascending date.
+		# We want it reversed
+		logs.reverse()
+		return logs
 
 	def main(self):
 		if (self.DEBUG):

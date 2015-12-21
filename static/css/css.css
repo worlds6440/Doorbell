@@ -1,0 +1,77 @@
+body { color: #000000; font-size: 11px; font-family: Verdana, Arial, Helvetica, sans-serif; }
+
+td { color: #000000; font-size: 11px; font-family: Verdana, Arial, Helvetica, sans-serif; }
+
+a:hover { color: #005D91; text-decoration: underline; }
+
+.borders { border: 1px solid #000000; }
+
+.link { color:#448EBF; text-decoration: none; }
+
+.link2 { color:#5B607D; text-decoration: none; }
+
+.form { color: #000000; font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif; }
+
+.heading1 {
+	font-weight: bold; font-size: 14px; color: #364F77; font-family: verdana, arial, sans-serif; letter-spacing: 0.3em;
+}
+.hh1 {
+	font-weight: bold; font-size: 16px; margin-bottom:5px; margin-top:5px;
+}
+
+.hdrL { padding-top:10px; padding-bottom:10px; }
+
+.style1 {
+  	font-family : verdana,arial,helvetica,sans-serif;
+	font-size : 10px;
+}
+
+.style2 {
+  	font-family : verdana,arial,helvetica,sans-serif;
+	font-size : 11px;
+}
+
+.style3 {
+  	font-family : verdana,arial,helvetica,sans-serif;
+	font-size : 13px;
+}
+
+.style3a {
+  	font-family : verdana,arial,helvetica,sans-serif;
+	font-size : 14px;
+}
+.style3b {
+  	font-family : verdana,arial,helvetica,sans-serif;
+	font-size : 15px;
+}
+
+.style4 {
+	font-weight: bold; font-size: 14px; color: #364F77; font-family: verdana, arial, sans-serif; letter-spacing: 0.5em; text-decoration: none
+}
+
+.style5 {
+	font-weight: bold; font-size: 24px; color: #364F77; font-family: verdana, arial, sans-serif; letter-spacing: 0.5em; text-decoration: none
+}
+
+.table1 {
+	border-right: #000000 1px solid; border-top: #000000 1px solid; border-left: #000000 1px solid; border-bottom: #000000 1px solid
+}
+.tBorder { border: 1px solid #000000; }
+
+.ahr { text-decoration:underline; font-weight:normal }
+
+#subtext { font-family:helvetica,arial; font-size:8pt; background-color:#CCCCCC; layer-background-color:#CCCCCC;}
+#title { font-family:helvetica,arial; font-size:13pt; font-weight:bold; }
+
+#red { position:absolute; left:54; top:100; width:256; height:10; z-index:1; visibility:visible; background-image:url(/static/images/redback.gif); layer-background-image:url(/static/images/redback.gif); clip:rect(0px 256px 10px 0px);}
+#green { position:absolute; left:54; top:120; width:256; height:10; z-index:1; visibility:visible; background-image:url(/static/images/greenback.gif); layer-background-image:url(/static/images/greenback.gif); clip:rect(0px 256px 10px 0px);}
+#blue { position:absolute; left:54; top:140; width:256; height:10; z-index:1; visibility:visible; background-image:url(/static/images/blueback.gif); layer-background-image:url(/static/images/blueback.gif); clip:rect(0px 256px 10px 0px);}
+
+#redSlider { position:absolute; left:50; top:98; width:8; height:14; z-index:2; visibility:visible; background-image:url(/static/images/scroll-boxh.gif); layer-background-image:url(/static/images/scroll-boxh.gif); clip:rect(0px 8px 14px 0px);}
+#greenSlider { position:absolute; left:50; top:118; width:8; height:14; z-index:2; visibility:visible; background-image:url(/static/images/scroll-boxh.gif); layer-background-image:url(/static/images/scroll-boxh.gif); clip:rect(0px 8px 14px 0px);}
+#blueSlider { position:absolute; left:50; top:138; width:8; height:14; z-index:2; visibility:visible; background-image:url(/static/images/scroll-boxh.gif); layer-background-image:url(/static/images/scroll-boxh.gif); clip:rect(0px 8px 14px 0px);}
+
+#display { position:absolute; left:320; top:100; width:50px; height:50px; z-index:1; visibility:visible; background-color:#000000; layer-background-color:#000000; }
+#hexValue { position:absolute; left:54; top:160; width:320; height:20; z-index:1; visibility:visible;}
+#titleBar { position:absolute; left:54; top:70; width:320; height:20; z-index:1; background-color:#DDDDDD; layer-background-color:#DDDDDD;}
+#colorTable { position:absolute; left:380; top:70; width:320; height:200; z-index:1; visibility:visible;}

@@ -1,0 +1,56 @@
+{% extends "header.html" %}
+{% block content %}
+
+	<h1>Settings</h1>
+	<br>
+	<br>
+
+	<div id="red"></div>
+	<div id="green"></div>
+	<div id="blue"></div>
+
+	<div id="redSlider"></div>
+	<div id="greenSlider"></div>
+	<div id="blueSlider"></div>
+
+	<div id="display"><img src="/static/images/blank.gif" width=50 height=50 border=0></div>
+	<div id="titleBar">
+		<table border=0 cellpadding=2 cellspacing=0 width=320>
+			<tr>
+				<td id="title">RGB to Hexidecimal Converter</td>
+			</tr>
+		</table>
+	</div>
+
+	<div id="hexValue"><form name="frmValue" action="/settings/" method="POST">
+		<table border="0" cellpadding="2" cellspacing="0" width="320" bgcolor="#EEEEEE">
+			<tbody><tr>
+				<td align="center">
+					<table border="0" cellpadding="2" cellspacing="0">
+						<tbody><tr>
+							<td id="subtext">Red</td>
+							<td id="subtext">Green</td>
+							<td id="subtext">Blue</td>
+						</tr>
+						<tr>
+							<td><input type="text" size="3" maxlength="3" name="RgbDisp" value="0" onblur="manualSet(this.value,'red');"></td>
+							<td><input type="text" size="3" maxlength="3" name="rGbDisp" value="0" onblur="manualSet(this.value,'green');"></td>
+							<td><input type="text" size="3" maxlength="3" name="rgBDisp" value="0" onblur="manualSet(this.value,'blue');"></td>
+						</tr>
+					</tbody></table>
+				</td>
+				<td align="center">
+					<table border="0" cellpadding="2" cellspacing="0">
+						<tbody><tr>
+							<td id="subtext">Hexdecimal</td>
+						</tr>
+						<tr>
+							<td><input type="text" size="6" maxlength="6" name="valueDisp" value="{{hex_colour}}" onblur="convertHex();"></td>
+						</tr>
+					</tbody></table>
+				</td>
+			</tr>
+		</tbody></table></form>
+	</div>
+
+{% endblock %}

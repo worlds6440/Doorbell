@@ -1,0 +1,48 @@
+#subtext { 
+	font-family:helvetica,arial;
+	font-size:8pt;
+	background-color:#CCCCCC;
+	layer-background-color:#CCCCCC;
+}
+#title {
+	font-family:helvetica,arial;
+	font-size:13pt;
+	font-weight:bold;
+}
+
+#display {
+	width:50px;
+	height:50px;
+	z-index:1;
+	visibility:visible;
+	background-color:#000000;
+	layer-background-color:#000000;
+}
+#hexValue {
+	position:absolute;
+	left:54;
+	top:100;
+	width:320;
+	height:20;
+	z-index:1;
+	visibility:visible;
+}
+#titleBar {
+	position:absolute;
+	left:54;
+	top:70;
+	width:320;
+	height:20;
+	z-index:1;
+	background-color:#DDDDDD;
+	layer-background-color:#DDDDDD;
+}
+#colorTable {
+	position:absolute;
+	left:380;
+	top:70;
+	width:320;
+	height:200;
+	z-index:1;
+	visibility:visible;
+}
