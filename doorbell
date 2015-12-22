@@ -12,12 +12,14 @@
 
 # Author: David Booth
 
-# Change the next 3 lines to suit where you install your script and what you want to call it
+# Install script location
 DIR=/home/pi/Doorbell
+# Daemon run file
 DAEMON=$DIR/doorbell.py
+# Install script name
 DAEMON_NAME=doorbell
 
-# Add any command line options for your daemon here
+# no additional (optional) command line options
 DAEMON_OPTS=""
 
 # This next line determines what user the script runs as.
