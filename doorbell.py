@@ -90,7 +90,8 @@ Thread_3.start()
 # Porch Lights
 if isServer:
     porchlight = PorchLights.PorchLights(r_led_count=5, max_rgb_value=255)
-    porchlight.constructor()
+    # No longer need to call this as using actual constructor
+    #porchlight.constructor()
     # Change the number of LEDs for r_led_count
     Thread_4 = threading.Thread(target=porchlight.run)
     Thread_4.start()
@@ -130,7 +131,7 @@ def WriteSettingsToFile():
     green = 0
     blue = 0
     if porchlight is not None:
-        red, green, blue = porchlight.get_led_colour()
+        red, green, blue = porchlight.get_led_colour(0)
     hex_colour = rgb_to_hex((red, green, blue))
     try:
         config.add_section('porchlight')
@@ -186,7 +187,7 @@ def ReadSettingsFromFile():
 
         # Push new values back to Porch light thread
         if porchlight is not None:
-            porchlight.set_led_colour(red, green, blue)
+            porchlight.set_led_colour(0, red, green, blue)
         # Push new values back to Doorbell Client thread
         if doorbell_c is not None:
             doorbell_c.set_selected_ding(selected_ding)
@@ -227,7 +228,7 @@ def dingdong():
     green = 0
     blue = 0
     if porchlight is not None:
-        red, green, blue = porchlight.get_led_colour()
+        red, green, blue = porchlight.get_led_colour(0)
 
     hex_colour = rgb_to_hex((red, green, blue))
 
@@ -286,7 +287,7 @@ def list():
     green = 0
     blue = 0
     if porchlight is not None:
-        red, green, blue = porchlight.get_led_colour()
+        red, green, blue = porchlight.get_led_colour(0)
 
     # Get the list of sockets to display onto the website
     sockets = []
@@ -317,7 +318,7 @@ def list():
         selected_dong = flask.request.form.get("selected_dong", None)
         # Push new values back to Porch light thread
         if porchlight is not None:
-            porchlight.set_led_colour(red, green, blue)
+            porchlight.set_led_colour(0, red, green, blue)
         # Push new values back to Doorbell Client thread
         if doorbell_c is not None:
             doorbell_c.set_selected_ding(selected_ding)
