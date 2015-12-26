@@ -22,7 +22,7 @@ class PorchLights():
         self.exit = False  # flag set when we want the process to exit
         # Create blinkstick instance
         self.blinkstick = blinkstick.BlinkStickPro()
-        # Red channel led strip
+        # Create LED strip here. Have to run in RGB (0,1,2) order
         self.channel = [LedStrip(self.blinkstick, 0)]
 
     def set_exit(self):
@@ -55,6 +55,16 @@ class PorchLights():
 
     def set_led_colour(self, channel, red, green, blue):
         self.channel[channel].set_led_colour(red, green, blue)
+
+    def set_all_led_colour(self, red, green, blue):
+            # Set all channel threads to RGB colour
+            for item in self.channel:
+                self.channel[item.channel].set_led_colour(
+                    item.channel,
+                    red,
+                    green,
+                    blue
+                )
 
     def shouldBeOn(self, timeNow):
         if self.DEBUG:

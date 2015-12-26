@@ -25,6 +25,13 @@ class LedStrip():
         self.exit = False  # flag set when we want the process to exit
         # Debug flag
         self.DEBUG = False
+        # LED illumination mode enum values
+        self.led_mode_standard = 1
+        self.led_mode_christmas = 2
+        # LED illumination mode
+        self.led_mode = self.led_mode_standard
+        # Thread pointer for christmas display (and any future mode)
+        self.led_thread = None
 
     def set_exit(self):
         """ Tell this thread to stop """
@@ -39,26 +46,13 @@ class LedStrip():
 
     def is_exit(self):
         """ Has this thread been told to stop """
-        # Grab the lock to the list of sockets
-        isexit = False
-        self.lock.acquire()
-        try:
-            # Fill list with socket information
-            isexit = self.exit
-        finally:
-            # Release the list of sockets
-            self.lock.release()
-        return isexit
+        return self.exit
 
     def get_led_colour(self):
         """ Get the LED RGB Values """
-        self.lock.acquire()
-        try:
-            red = self.led_red
-            green = self.led_green
-            blue = self.led_blue
-        finally:
-            self.lock.release()
+        red = self.led_red
+        green = self.led_green
+        blue = self.led_blue
         return red, green, blue
 
     def set_led_colour(self, red, green, blue):
@@ -70,17 +64,16 @@ class LedStrip():
             self.led_blue = blue
         finally:
             self.lock.release()
+        # If LED already on, change colour immediately
+        if self.is_on():
+            self.set_all(self, red, green, blue)
         return
 
     def get_current_led_colour(self):
         """ Get the current working LED RGB Values """
-        self.lock.acquire()
-        try:
-            red = self.current_led_red
-            green = self.current_led_green
-            blue = self.current_led_blue
-        finally:
-            self.lock.release()
+        red = self.current_led_red
+        green = self.current_led_green
+        blue = self.current_led_blue
         return red, green, blue
 
     def set_current_led_colour(self, red, green, blue):
@@ -94,17 +87,11 @@ class LedStrip():
             self.lock.release()
         return
 
-    def isOn(self):
+    def is_on(self):
         """ Are the LEDs on """
-        led_on = False
-        self.lock.acquire()
-        try:
-            led_on = self.led_on
-        finally:
-            self.lock.release()
-        return led_on
+        return self.led_on
 
-    def setOn(self, led_on):
+    def set_on(self, led_on):
         """ Set the LEDs on flag """
         self.lock.acquire()
         try:
@@ -113,20 +100,34 @@ class LedStrip():
             self.lock.release()
         return
 
-    def setAll(self, red, green, blue):
+    def set_all(self, red, green, blue):
         """ Set all leds to a specific colour """
         if self.DEBUG:
             print("Colour ", str(red), str(green), str(blue))
-        # Loop leds and set RGB values
-        for i in range(0, self.blinkstick.r_led_count):
-            self.blinkstick.set_color(self.channel, i, red, green, blue)
-        # Single call to send RGB values to blinkstick
-        self.send_data_all()
+
+        # Get appropriate LED count for current channel
+        led_count = 0
+        if self.channel == 0:
+            led_count = self.blinkstick.r_led_count
+        if self.channel == 1:
+            led_count = self.blinkstick.g_led_count
+        if self.channel == 2:
+            led_count = self.blinkstick.b_led_count
+
+        self.lock.acquire()
+        try:
+            # Loop leds and set RGB values
+            for i in range(0, led_count):
+                self.blinkstick.set_color(self.channel, i, red, green, blue)
+            # Single call to send RGB values to blinkstick
+            self.send_data_all()
+        finally:
+            self.lock.release()
         # Update what colour this class thinks its set too.
         self.set_current_led_colour(red, green, blue)
         return
 
-    def phaseLights(self, fromR, fromG, fromB, toR, toG, toB):
+    def phase_lights(self, fromR, fromG, fromB, toR, toG, toB):
         """ Gently change leds from a set color to another colour """
         timeSpan = 1.0  # seconds
         steps = 50  # static number of steps
@@ -151,32 +152,58 @@ class LedStrip():
         green = float(fromG)
         blue = float(fromB)
         for i in range(0, steps):
-            self.setAll(int(red), int(green), int(blue))
+            self.set_all(int(red), int(green), int(blue))
             red += red_int
             green += green_int
             blue += blue_int
             time.sleep(interval)
 
         # Finally, ensure we reach the final colour
-        self.setAll(toR, toG, toB)
+        self.set_all(toR, toG, toB)
 
-    def switch_on(self):
+    def switch_on(self, force=False):
         """ Switch the lights on (if not already on) """
-        if not self.is_on():
-            # Get current LED colour and colour it should be
-            r, g, b = self.get_led_colour()
-            current_r, current_g, current_b = self.get_current_led_colour()
-            # Phase the lights from current to new values
-            self.phaseLights(current_r, current_g, current_b, r, g, b)
-            # Set flag
-            self.setOn(True)
+        if not self.is_on() or force:
+            if self.led_mode == self.led_mode_standard:
+                # Get current LED colour and colour it should be
+                r, g, b = self.get_led_colour()
+                current_r, current_g, current_b = self.get_current_led_colour()
+                # Phase the lights from current to new values
+                self.phase_lights(current_r, current_g, current_b, r, g, b)
 
-    def switch_off(self):
+            if self.led_mode == self.led_mode_christmas:
+                # Kick off internal thread to constantly change lights
+                if self.led_thread is None:
+                    # Ensure thread killing flag is cleared
+                    self.exit = False
+                    # Kick off new thread listening for doorbell events
+                    self.led_thread = threading.Thread(
+                        target=self.christmas_display
+                    )
+                    self.led_thread.start()
+            # Set flag
+            self.set_on(True)
+
+    def switch_off(self, force=False):
         """ Switch the lights off (if not already off) """
-        if self.is_on():
+        if self.is_on() or force:
             # Get current LED colour and colour it should be
             current_r, current_g, current_b = self.get_current_led_colour()
             # Phase the lights from current to new values
-            self.phaseLights(current_r, current_g, current_b, 0, 0, 0)
+            self.phase_lights(current_r, current_g, current_b, 0, 0, 0)
+            # ensure thread is killed
+            self.set_exit()
+            # Wipe thread pointer
+            self.led_thread = None
             # Set flag
-            self.setOn(False)
+            self.set_on(False)
+
+    def christmas_display(self):
+        """ Loop indefinitely displaying
+        christmassy themed lighting display """
+        while True:
+            # Check exit flag on each loop
+            if self.is_exit():
+                return
+            # Sleep between frames
+            time.sleep(1)

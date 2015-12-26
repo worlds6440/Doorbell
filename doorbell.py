@@ -187,7 +187,7 @@ def ReadSettingsFromFile():
 
         # Push new values back to Porch light thread
         if porchlight is not None:
-            porchlight.set_led_colour(0, red, green, blue)
+            porchlight.set_all_led_colour(red, green, blue)
         # Push new values back to Doorbell Client thread
         if doorbell_c is not None:
             doorbell_c.set_selected_ding(selected_ding)
@@ -318,7 +318,7 @@ def list():
         selected_dong = flask.request.form.get("selected_dong", None)
         # Push new values back to Porch light thread
         if porchlight is not None:
-            porchlight.set_led_colour(0, red, green, blue)
+            porchlight.set_all_led_colour(red, green, blue)
         # Push new values back to Doorbell Client thread
         if doorbell_c is not None:
             doorbell_c.set_selected_ding(selected_ding)
