@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 import sys
 import threading
-import subprocess
 import RPi.GPIO as GPIO
 import time
 import socket
-import os.path
 import smtplib
 
 
