@@ -89,7 +89,7 @@ Thread_3.start()
 
 # Porch Lights
 if isServer:
-    porchlight = PorchLights.PorchLights(r_led_count=5, max_rgb_value=255)
+    porchlight = PorchLights.PorchLights()
     # No longer need to call this as using actual constructor
     #porchlight.constructor()
     # Change the number of LEDs for r_led_count

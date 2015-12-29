@@ -20,10 +20,27 @@ class PorchLights():
         # Thread lock
         self.lock = threading.Lock()
         self.exit = False  # flag set when we want the process to exit
+
+        # Static channel indecies
+        self.channel_red = 0
+        self.channel_green = 1
+        self.channel_blue = 2
+
         # Create blinkstick instance
-        self.blinkstick = blinkstick.BlinkStickPro()
-        # Create LED strip here. Have to run in RGB (0,1,2) order
-        self.channel = [LedStrip(self.blinkstick, 0)]
+        self.blinkstick = blinkstick.BlinkStickPro(
+            r_led_count=5,
+            max_rgb_value=255
+        )
+        # Create empty LED strip array
+        self.channel = None
+
+        # Add Red Channel LED strip (5 leds shown above)
+        self.channel.append(
+            LedStrip.LedStrip(
+                self.blinkstick,
+                self.channel_red
+            )
+        )
 
     def set_exit(self):
         # Grab the lock to the list of sockets

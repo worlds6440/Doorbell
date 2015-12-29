@@ -66,7 +66,7 @@ class LedStrip():
             self.lock.release()
         # If LED already on, change colour immediately
         if self.is_on():
-            self.set_all(self, red, green, blue)
+            self.set_all(red, green, blue)
         return
 
     def get_current_led_colour(self):
@@ -100,11 +100,7 @@ class LedStrip():
             self.lock.release()
         return
 
-    def set_all(self, red, green, blue):
-        """ Set all leds to a specific colour """
-        if self.DEBUG:
-            print("Colour ", str(red), str(green), str(blue))
-
+    def led_count(self):
         # Get appropriate LED count for current channel
         led_count = 0
         if self.channel == 0:
@@ -113,6 +109,15 @@ class LedStrip():
             led_count = self.blinkstick.g_led_count
         if self.channel == 2:
             led_count = self.blinkstick.b_led_count
+        return led_count
+
+    def set_all(self, red, green, blue):
+        """ Set all leds to a specific colour """
+        if self.DEBUG:
+            print("Colour ", str(red), str(green), str(blue))
+
+        # Get appropriate LED count for current channel
+        led_count = self.led_count()
 
         self.lock.acquire()
         try:
@@ -178,7 +183,7 @@ class LedStrip():
                     self.exit = False
                     # Kick off new thread listening for doorbell events
                     self.led_thread = threading.Thread(
-                        target=self.christmas_display
+                        target=self.christmas_display_1
                     )
                     self.led_thread.start()
             # Set flag
@@ -187,23 +192,76 @@ class LedStrip():
     def switch_off(self, force=False):
         """ Switch the lights off (if not already off) """
         if self.is_on() or force:
-            # Get current LED colour and colour it should be
-            current_r, current_g, current_b = self.get_current_led_colour()
-            # Phase the lights from current to new values
-            self.phase_lights(current_r, current_g, current_b, 0, 0, 0)
-            # ensure thread is killed
-            self.set_exit()
-            # Wipe thread pointer
-            self.led_thread = None
+            if self.led_thread is None:
+                # Get current LED colour and colour it should be
+                current_r, current_g, current_b = self.get_current_led_colour()
+                # Phase the lights from current to new values
+                self.phase_lights(current_r, current_g, current_b, 0, 0, 0)
+            else:
+                # ensure thread is killed
+                self.set_exit()
+                # Wipe thread pointer
+                self.led_thread = None
             # Set flag
             self.set_on(False)
 
-    def christmas_display(self):
+    def christmas_display_1(self):
         """ Loop indefinitely displaying
         christmassy themed lighting display """
         while True:
             # Check exit flag on each loop
             if self.is_exit():
+                # Turn LEDs off if display exited
+                self.set_all(0, 0, 0)
                 return
-            # Sleep between frames
-            time.sleep(1)
+
+            led_count = self.led_count()
+
+            for loop in range(0, 1):
+                # Send to LEDs
+                self.lock.acquire()
+                try:
+                    # Set even leds colour
+                    for i in range(0, (led_count-1), 2):
+                        if loop is 0:
+                            self.blinkstick.set_color(
+                                self.channel,
+                                i,
+                                255,
+                                0,
+                                0
+                            )
+                        else:
+                            self.blinkstick.set_color(
+                                self.channel,
+                                i,
+                                0,
+                                255,
+                                0
+                            )
+
+                    # Set odd leds colour
+                    for i in range(1, (led_count-1), 2):
+                        if loop is 0:
+                            self.blinkstick.set_color(
+                                self.channel,
+                                i,
+                                0,
+                                255,
+                                0
+                            )
+                        else:
+                            self.blinkstick.set_color(
+                                self.channel,
+                                i,
+                                255,
+                                0,
+                                0
+                            )
+                    # Single call to send RGB values to blinkstick
+                    self.send_data_all()
+                finally:
+                    self.lock.release()
+
+                # Pause for a small time
+                time.sleep(1.0)
