@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import time
 import threading
+from random import randint
 
 
 class LedStrip():
@@ -125,7 +126,7 @@ class LedStrip():
             for i in range(0, led_count):
                 self.blinkstick.set_color(self.channel, i, red, green, blue)
             # Single call to send RGB values to blinkstick
-            self.send_data_all()
+            self.blinkstick.send_data_all()
         finally:
             self.lock.release()
         # Update what colour this class thinks its set too.
@@ -259,9 +260,61 @@ class LedStrip():
                                 0
                             )
                     # Single call to send RGB values to blinkstick
-                    self.send_data_all()
+                    self.blinkstick.send_data_all()
                 finally:
                     self.lock.release()
 
                 # Pause for a small time
                 time.sleep(1.0)
+
+def christmas_display_2(self):
+        max = 255
+
+        # Choose a random colour limited to between 0 and 255
+        red = randint(0, max)
+        green = randint(0, max)
+        blue = randint(0, max)
+        #red = max
+        #green = max
+        #blue = max
+
+        x = 0
+        sign = 1
+        try:
+            while True:
+                self.lock.acquire()
+                try:
+                    if sign == 1:
+                        # Set LEDs colour
+                        self.blinkstick.set_color(0, x, red, green, blue)
+                    else:
+                        # Turn LEDs off
+                        self.blinkstick.set_color(0, x, 0, 0, 0)
+                    # Single call to send RGB values to blinkstick
+                    self.blinkstick.send_data_all()
+                finally:
+                    self.lock.release()
+                # Sleep a small while between each LED setting
+                time.sleep(0.05)
+
+                x += 1
+                if x == self.r_led_count:
+                    # Reached end of LED strip, reset index
+                    x = 0
+                    if sign == 1:
+                        # Sleep medium time leaving all LEDs on
+                        time.sleep(10.0)
+                        sign = 0
+                    else:
+                        sign = 1
+                    # Choose a new random colour limited to between 0 and 255
+                    red = randint(0, max)
+                    green = randint(0, max)
+                    blue = randint(0, max)
+                    #red = max
+                    #green = max
+                    #blue = max
+
+        except KeyboardInterrupt:
+            self.off()
+            return
