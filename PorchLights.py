@@ -32,7 +32,7 @@ class PorchLights():
             max_rgb_value=255
         )
         # Create empty LED strip array
-        self.channel = None
+        self.channel = []
 
         # Add Red Channel LED strip (5 leds shown above)
         self.channel.append(
@@ -76,7 +76,7 @@ class PorchLights():
     def set_all_led_colour(self, red, green, blue):
             # Set all channel threads to RGB colour
             for item in self.channel:
-                self.channel[item.channel].set_led_colour(
+                self.set_led_colour(
                     item.channel,
                     red,
                     green,

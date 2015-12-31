@@ -18,6 +18,8 @@ porchlight = None
 isServer = True
 # List of text values user can type in that mean "yes"
 yes_list = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
+# Project installation directory
+project_dir = "/home/pi/Doorbell/"
 
 
 def GetServerFlagFromFile():
@@ -65,7 +67,7 @@ def WriteServerFlagToFile():
 
 
 # Change to Doorbell folder
-os.chdir("/home/pi/Doorbell/")
+os.chdir(project_dir)
 flask_app = flask.Flask("Flask_App")
 
 # Get the server flag from config file
