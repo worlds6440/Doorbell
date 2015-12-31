@@ -237,7 +237,7 @@ class DoorBell_Server:
             server.quit()
             if self.DEBUG:
                 print("Successfully sent email")
-        except SMTPException:
+        except (KeyboardInterrupt, SystemExit):
             if self.DEBUG:
                 print("Error: unable to send email")
         return

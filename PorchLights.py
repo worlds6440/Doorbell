@@ -157,7 +157,7 @@ class PorchLights():
                         # NOTE: will always normalise the tick to round minutes
                         time.sleep(60 - timeNow.tm_sec)
 
-                except KeyboardInterrupt:
+                except (KeyboardInterrupt, SystemExit):
                     # Users pressed Ctrl+C
                     self.off()
                     return
