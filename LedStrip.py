@@ -267,7 +267,7 @@ class LedStrip():
                 # Pause for a small time
                 time.sleep(1.0)
 
-def christmas_display_2(self):
+    def christmas_display_2(self):
         max = 255
 
         # Choose a random colour limited to between 0 and 255
