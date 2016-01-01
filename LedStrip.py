@@ -269,53 +269,78 @@ class LedStrip():
                 # Pause for a small time
                 time.sleep(1.0)
 
-    def christmas_display_2(self):
-        max = 255
+    def effect_swipe(self, red=None, green=None, blue=None, forwards=True):
+        """ Turn all LEDs on in a swiping motion """
+        # Maximum R G or B value
+        max_value = 255
+
+        r = 0
+        g = 0
+        b = 0
 
         # Choose a random colour limited to between 0 and 255
-        red = randint(0, max)
-        green = randint(0, max)
-        blue = randint(0, max)
-        #red = max
-        #green = max
-        #blue = max
+        if red is None:
+            r = randint(0, max_value)
+        else:
+            r = red
+        if green is None:
+            g = randint(0, max_value)
+        else:
+            g = green
+        if blue is None:
+            b = randint(0, max_value)
+        else:
+            b = blue
 
-        x = 0
-        sign = 1
+        # calculate loop range for forwards or backwards
+        led_count = self.led_count()
+        from_index = 0
+        to_index = led_count
+        if not forwards:
+            from_index = led_count-1
+            to_index = 0
+
+        # Loop LED indices
+        for x in range(from_index, to_index):
+            self.lock.acquire()
+            try:
+                # Set LEDs colour
+                self.blinkstick.set_color(self.channel, x, r, g, b)
+                # Single call to send RGB values to blinkstick
+                self.blinkstick.send_data_all()
+            finally:
+                self.lock.release()
+            # Sleep a small while between each LED setting
+            time.sleep(0.05)
+
+    def christmas_display_2(self):
         try:
+            forwards = True
             while True:
-                self.lock.acquire()
-                try:
-                    if sign == 1:
-                        # Set LEDs colour
-                        self.blinkstick.set_color(0, x, red, green, blue)
-                    else:
-                        # Turn LEDs off
-                        self.blinkstick.set_color(0, x, 0, 0, 0)
-                    # Single call to send RGB values to blinkstick
-                    self.blinkstick.send_data_all()
-                finally:
-                    self.lock.release()
+                # Check exit flag on each loop
+                if self.is_exit():
+                    # Turn LEDs off if display exited
+                    self.set_all(0, 0, 0)
+                    return
+
+                # Swipe the LEDs on with random colours
+                self.effect_swipe(
+                    red=None,
+                    green=None,
+                    blue=None,
+                    forwards=forwards
+                )
                 # Sleep a small while between each LED setting
                 time.sleep(0.05)
-
-                x += 1
-                if x == self.r_led_count:
-                    # Reached end of LED strip, reset index
-                    x = 0
-                    if sign == 1:
-                        # Sleep medium time leaving all LEDs on
-                        time.sleep(10.0)
-                        sign = 0
-                    else:
-                        sign = 1
-                    # Choose a new random colour limited to between 0 and 255
-                    red = randint(0, max)
-                    green = randint(0, max)
-                    blue = randint(0, max)
-                    #red = max
-                    #green = max
-                    #blue = max
+                # Swipe the LEDs off
+                self.effect_swipe(
+                    red=0,
+                    green=0,
+                    blue=0,
+                    forwards=forwards
+                )
+                # Invert forwards flag each time
+                forwards = not forwards
 
         except KeyboardInterrupt:
             self.off()

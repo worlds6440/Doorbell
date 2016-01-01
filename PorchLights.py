@@ -47,7 +47,7 @@ class PorchLights():
             LedStrip.LedStrip(
                 self.blinkstick,
                 self.channel_green,
-                display_mode=LedStrip.led_mode_christmas
+                display_mode=2
             )
         )
 
