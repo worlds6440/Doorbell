@@ -280,6 +280,7 @@ class LedStrip():
         #green = max
         #blue = max
 
+        led_count = self.led_count()
         x = 0
         sign = 1
         try:
@@ -288,10 +289,22 @@ class LedStrip():
                 try:
                     if sign == 1:
                         # Set LEDs colour
-                        self.blinkstick.set_color(0, x, red, green, blue)
+                        self.blinkstick.set_color(
+                            self.channel,
+                            x,
+                            red,
+                            green,
+                            blue
+                        )
                     else:
                         # Turn LEDs off
-                        self.blinkstick.set_color(0, x, 0, 0, 0)
+                        self.blinkstick.set_color(
+                            self.channel,
+                            x,
+                            0,
+                            0,
+                            0
+                        )
                     # Single call to send RGB values to blinkstick
                     self.blinkstick.send_data_all()
                 finally:
@@ -300,12 +313,12 @@ class LedStrip():
                 time.sleep(0.05)
 
                 x += 1
-                if x == self.r_led_count:
+                if x == led_count:
                     # Reached end of LED strip, reset index
                     x = 0
                     if sign == 1:
                         # Sleep medium time leaving all LEDs on
-                        time.sleep(10.0)
+                        time.sleep(1.0)
                         sign = 0
                     else:
                         sign = 1
