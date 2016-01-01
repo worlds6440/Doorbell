@@ -11,6 +11,16 @@ class DoorBell_Server:
     def __init__(self):
         # Constructor
 
+        # SMTP login details
+        self.send_email = False
+        self.LOGIN = "EMAIL@EMAIL.COM"
+        self.PASSWORD = "PASSWORD"
+        self.FROMADDR = "EMAIL@EMAIL.COM"
+        self.TOADDRS = ["EMAIL@EMAIL.COM"]
+        self.SUBJECT = "Doorbell Pressed"
+        self.SMTP_SERVER = "smtp.gmail.com"
+        #TEXT = "The doorbell was just pressed."
+
         # Member variables
         self.SOCKET_DEBUG = True
         self.DEBUG = False
@@ -208,39 +218,31 @@ class DoorBell_Server:
         # Attempt to send an email notification
         # Note that the TO variable must be a list, and that you have
         # to add the From, To, and Subject headers to the message yourself
-        LOGIN = "EMAIL@EMAIL.COM"
-        PASSWORD = "PASSWORD"
+        if self.send_email:
+            # Prepare message headers
+            msg = (
+                "From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
+                % (self.FROMADDR, ", ".join(self.TOADDRS), self.SUBJECT)
+            )
 
-        FROMADDR = "EMAIL@EMAIL.COM"
-        TOADDRS = ["EMAIL@EMAIL.COM"]
-        SUBJECT = "Doorbell Pressed"
-        #TEXT = "The doorbell was just pressed."
+            # Message body
+            localtime = time.asctime(time.localtime(time.time()))
+            msg += "Doorbell pressed (" + localtime + ")\r\n"
 
-        # Prepare message headers
-        msg = (
-            "From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
-            % (FROMADDR, ", ".join(TOADDRS), SUBJECT)
-        )
-
-        # Message body
-        localtime = time.asctime(time.localtime(time.time()))
-        msg += "Doorbell pressed (" + localtime + ")\r\n"
-
-        # Send the mail
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.set_debuglevel(0)  # Debug output == 1
-            server.ehlo()
-            server.starttls()
-            server.login(LOGIN, PASSWORD)
-            server.sendmail(FROMADDR, TOADDRS, msg)
-            server.quit()
-            if self.DEBUG:
-                print("Successfully sent email")
-        except (KeyboardInterrupt, SystemExit):
-            if self.DEBUG:
-                print("Error: unable to send email")
-        return
+            # Send the mail
+            try:
+                server = smtplib.SMTP(self.SMTP_SERVER, 587)
+                server.set_debuglevel(0)  # Debug output == 1
+                server.ehlo()
+                server.starttls()
+                server.login(self.LOGIN, self.PASSWORD)
+                server.sendmail(self.FROMADDR, self.TOADDRS, msg)
+                server.quit()
+                if self.DEBUG:
+                    print("Successfully sent email")
+            except (KeyboardInterrupt, SystemExit):
+                if self.DEBUG:
+                    print("Error: unable to send email")
 
     def Ding(self):
         # Thin out audio playing list
