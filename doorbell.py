@@ -10,6 +10,8 @@ import subprocess
 import os.path
 from ConfigParser import SafeConfigParser
 
+# Version number
+version = 2.0
 
 # Class pointers
 doorbell_c = None
