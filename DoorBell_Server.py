@@ -208,11 +208,11 @@ class DoorBell_Server:
         # Attempt to send an email notification
         # Note that the TO variable must be a list, and that you have
         # to add the From, To, and Subject headers to the message yourself
-        LOGIN = "worlds6440@gmail.com"
-        PASSWORD = "subaru0utback"
+        LOGIN = "EMAIL@EMAIL.COM"
+        PASSWORD = "PASSWORD"
 
-        FROMADDR = "worlds6440@gmail.com"
-        TOADDRS = ["worlds6440@gmail.com"]
+        FROMADDR = "EMAIL@EMAIL.COM"
+        TOADDRS = ["EMAIL@EMAIL.COM"]
         SUBJECT = "Doorbell Pressed"
         #TEXT = "The doorbell was just pressed."
 
