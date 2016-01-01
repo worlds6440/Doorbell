@@ -6,7 +6,7 @@ from random import randint
 
 class LedStrip():
 
-    def __init__(self, blink_stick, channel):
+    def __init__(self, blink_stick, channel, display_mode=None):
         # Constructor
         self.blinkstick = blink_stick
         # LED On flag
@@ -31,6 +31,8 @@ class LedStrip():
         self.led_mode_christmas = 2
         # LED illumination mode
         self.led_mode = self.led_mode_standard
+        if display_mode is not None:
+            self.led_mode = display_mode
         # Thread pointer for christmas display (and any future mode)
         self.led_thread = None
 

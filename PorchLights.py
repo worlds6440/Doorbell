@@ -28,7 +28,8 @@ class PorchLights():
 
         # Create blinkstick instance
         self.blinkstick = blinkstick.BlinkStickPro(
-            r_led_count=5,
+            r_led_count=5,  # Standard LED Porch Light
+            g_led_count=20,  # Secondary LED strip / Christmas Lights
             max_rgb_value=255
         )
         # Create empty LED strip array
@@ -39,6 +40,14 @@ class PorchLights():
             LedStrip.LedStrip(
                 self.blinkstick,
                 self.channel_red
+            )
+        )
+        # Second LED Strip
+        self.channel.append(
+            LedStrip.LedStrip(
+                self.blinkstick,
+                self.channel_green,
+                display_mode=LedStrip.led_mode_christmas
             )
         )
 
