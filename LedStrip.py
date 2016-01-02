@@ -6,7 +6,7 @@ from random import randint
 
 class LedStrip():
 
-    def __init__(self, blink_stick, channel, display_mode=None):
+    def __init__(self, blink_stick, channel, allow_seasonal_display=None):
         # Constructor
         self.blinkstick = blink_stick
         # LED On flag
@@ -31,8 +31,9 @@ class LedStrip():
         self.led_mode_christmas = 2
         # LED illumination mode
         self.led_mode = self.led_mode_standard
-        if display_mode is not None:
-            self.led_mode = display_mode
+        self.allow_seasonal_display = False
+        if allow_seasonal_display is not None:
+            self.allow_seasonal_display = allow_seasonal_display
         # Thread pointer for christmas display (and any future mode)
         self.led_thread = None
 
@@ -186,8 +187,8 @@ class LedStrip():
                     self.exit = False
                     # Kick off new thread listening for doorbell events
                     self.led_thread = threading.Thread(
-                        #target=self.christmas_display_1
-                        target=self.christmas_display_2
+                        target=self.christmas_display_1
+                        #target=self.christmas_display_2
                     )
                     self.led_thread.start()
             # Set flag

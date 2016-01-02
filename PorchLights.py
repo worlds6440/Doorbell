@@ -143,6 +143,7 @@ class PorchLights():
                         item.switch_off()
 
                     # Loop indefinitely
+                    prev_should_be_on = False
                     while True:
                         # Check exit flag on each loop
                         if self.is_exit():
@@ -154,7 +155,31 @@ class PorchLights():
                         # Find out if the LEDS should be on
                         shouldBeOn = self.shouldBeOn(timeNow)
 
+                        # Is there a change in On/Off
+                        if prev_should_be_on != shouldBeOn:
+                            # Light Switched On or Off
+                            christmas_display = False
+                            date = time.localtime()
+                            if (
+                                (date.tm_mon == 12 and date.tm_mday >= 18)
+                                or (date.tm_mon == 1 and date.tm_mday <= 5)
+                            ):
+                                # Christmas Display Period
+                                christmas_display = True
+
                         for item in self.channel:
+                            # If light allows seasonal display, set its
+                            #  mode here BEFORE we turn it on
+                            if (
+                                prev_should_be_on != shouldBeOn
+                                and item.allow_seasonal_display
+                            ):
+                                # Changeover
+                                if christmas_display:
+                                    item.led_mode = item.led_mode_christmas
+                                else:
+                                    item.led_mode = item.led_mode_standard
+
                             if shouldBeOn:
                                 # Turn light ON
                                 item.switch_on()
@@ -165,6 +190,8 @@ class PorchLights():
                         # Sleep for a minute and test again.
                         # NOTE: will always normalise the tick to round minutes
                         time.sleep(60 - timeNow.tm_sec)
+                        # Finally, remember the "should be on" state
+                        prev_should_be_on = shouldBeOn
 
                 except (KeyboardInterrupt, SystemExit):
                     # Users pressed Ctrl+C
