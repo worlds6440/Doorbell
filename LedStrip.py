@@ -186,7 +186,8 @@ class LedStrip():
                     self.exit = False
                     # Kick off new thread listening for doorbell events
                     self.led_thread = threading.Thread(
-                        target=self.christmas_display_1
+                        #target=self.christmas_display_1
+                        target=self.christmas_display_2
                     )
                     self.led_thread.start()
             # Set flag
@@ -208,66 +209,44 @@ class LedStrip():
             # Set flag
             self.set_on(False)
 
-    def christmas_display_1(self):
-        """ Loop indefinitely displaying
-        christmassy themed lighting display """
-        while True:
-            # Check exit flag on each loop
-            if self.is_exit():
-                # Turn LEDs off if display exited
-                self.set_all(0, 0, 0)
-                return
+    def effect_set_even_odd(self, red=None, green=None, blue=None, even=True):
+        """ Set all even indexed LEDs a certain colour """
+        # Maximum R G or B value
+        max_value = 255
 
-            led_count = self.led_count()
+        r = 0
+        g = 0
+        b = 0
 
-            for loop in range(0, 1):
-                # Send to LEDs
-                self.lock.acquire()
-                try:
-                    # Set even leds colour
-                    for i in range(0, (led_count-1), 2):
-                        if loop is 0:
-                            self.blinkstick.set_color(
-                                self.channel,
-                                i,
-                                255,
-                                0,
-                                0
-                            )
-                        else:
-                            self.blinkstick.set_color(
-                                self.channel,
-                                i,
-                                0,
-                                255,
-                                0
-                            )
+        # Choose a random colour limited to between 0 and 255
+        if red is None:
+            r = randint(0, max_value)
+        else:
+            r = red
+        if green is None:
+            g = randint(0, max_value)
+        else:
+            g = green
+        if blue is None:
+            b = randint(0, max_value)
+        else:
+            b = blue
 
-                    # Set odd leds colour
-                    for i in range(1, (led_count-1), 2):
-                        if loop is 0:
-                            self.blinkstick.set_color(
-                                self.channel,
-                                i,
-                                0,
-                                255,
-                                0
-                            )
-                        else:
-                            self.blinkstick.set_color(
-                                self.channel,
-                                i,
-                                255,
-                                0,
-                                0
-                            )
-                    # Single call to send RGB values to blinkstick
-                    self.blinkstick.send_data_all()
-                finally:
-                    self.lock.release()
+        led_count = self.led_count()
 
-                # Pause for a small time
-                time.sleep(1.0)
+        # Send to LEDs
+        self.lock.acquire()
+        try:
+            # Calculate start index depending on whether
+            # working with even or odd numbers
+            from_index = 0
+            if not even:
+                from_index = 1
+            # Set every other LED to the required colour
+            for i in range(from_index, (led_count-1), 2):
+                    self.blinkstick.set_color(self.channel, i, r, g, b)
+        finally:
+            self.lock.release()
 
     def effect_swipe(self, red=None, green=None, blue=None, forwards=True):
         """ Turn all LEDs on in a swiping motion """
@@ -298,10 +277,11 @@ class LedStrip():
         to_index = led_count
         if not forwards:
             from_index = led_count-1
-            to_index = 0
+            to_index = -1
 
         # Loop LED indices
-        for x in range(from_index, to_index):
+        x = from_index
+        while x != to_index:
             self.lock.acquire()
             try:
                 # Set LEDs colour
@@ -312,6 +292,31 @@ class LedStrip():
                 self.lock.release()
             # Sleep a small while between each LED setting
             time.sleep(0.05)
+            # Increment loop index
+            if forwards:
+                x = x+1
+            else:
+                x = x-1
+
+    def christmas_display_1(self):
+        """ Loop indefinitely displaying
+        christmassy themed lighting display """
+        while True:
+            # Check exit flag on each loop
+            if self.is_exit():
+                # Turn LEDs off if display exited
+                self.set_all(0, 0, 0)
+                return
+
+            self.effect_set_even_odd(255, 0, 0, even=True)
+            self.effect_set_even_odd(0, 255, 0, even=False)
+            # Pause for a small time
+            time.sleep(0.5)
+
+            self.effect_set_even_odd(0, 255, 0, even=True)
+            self.effect_set_even_odd(255, 0, 0, even=False)
+            # Pause for a small time
+            time.sleep(0.5)
 
     def christmas_display_2(self):
         try:
