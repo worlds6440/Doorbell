@@ -123,6 +123,40 @@ class PorchLights():
 
         return shouldBeOn
 
+    def is_in_date_range(start_month, start_day, end_month, end_day):
+        """ Test whether todays date is within the given date range """
+        # Get current date
+        date = time.localtime()
+
+        # Is start month greater than end month
+        straddling_year_end = False
+        if start_month > end_month:
+            straddling_year_end = True
+
+        # Is todays date on correct side of the start date
+        within_start = False
+        if not straddling_year_end:
+            if date.tm_mon >= start_month and date.tm_mday >= start_day:
+                within_start = True
+        else:
+            if date.tm_mon <= start_month and date.tm_mday <= start_day:
+                within_start = True
+
+        # Is todays date on correct side of the start date
+        within_end = False
+        if not straddling_year_end:
+            if date.tm_mon <= end_month and date.tm_mday <= end_day:
+                within_end = True
+        else:
+            if date.tm_mon >= end_month and date.tm_mday >= end_day:
+                within_end = True
+
+        # Test whether we are within date range
+        if within_start and within_end:
+            return True
+        else:
+            return False
+
     def run(self):
         while True:
             # Connect to blinkstick
@@ -155,23 +189,20 @@ class PorchLights():
                         # Find out if the LEDS should be on
                         shouldBeOn = self.shouldBeOn(timeNow)
 
-                        # Is there a change in On/Off
+                        # Is there a change in On/Off state
+                        led_state_change = False
+                        christmas_display = False
                         if prev_should_be_on != shouldBeOn:
-                            # Light Switched On or Off
-                            christmas_display = False
-                            date = time.localtime()
-                            if (
-                                (date.tm_mon == 12 and date.tm_mday >= 18)
-                                or (date.tm_mon == 1 and date.tm_mday <= 5)
-                            ):
-                                # Christmas Display Period
+                            led_state_change = True
+                            # Christmas Display Period
+                            if self.is_in_date_range(12, 18, 1, 5):
                                 christmas_display = True
 
                         for item in self.channel:
                             # If light allows seasonal display, set its
                             #  mode here BEFORE we turn it on
                             if (
-                                prev_should_be_on != shouldBeOn
+                                led_state_change
                                 and item.allow_seasonal_display
                             ):
                                 # Changeover
