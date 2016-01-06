@@ -13,14 +13,14 @@
 # Author: David Booth
 
 # Install script location
-DIR=/home/pi/Doorbell
+DIR=/home/pi/Projects/Doorbell
 # Daemon run file
 DAEMON=$DIR/doorbell.py
 # Install script name
 DAEMON_NAME=doorbell
 
 # no additional (optional) command line options
-DAEMON_OPTS=""
+DAEMON_OPTS="$DIR"
 
 # This next line determines what user the script runs as.
 # Root generally not recommended but necessary if you are using the Raspberry Pi GPIO from Python.
