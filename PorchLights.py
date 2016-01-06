@@ -123,7 +123,7 @@ class PorchLights():
 
         return shouldBeOn
 
-    def is_in_date_range(start_month, start_day, end_month, end_day):
+    def is_in_date_range(self, start_month, start_day, end_month, end_day):
         """ Test whether todays date is within the given date range """
         # Get current date
         date = time.localtime()
