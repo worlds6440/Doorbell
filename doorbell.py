@@ -21,7 +21,7 @@ isServer = True
 # List of text values user can type in that mean "yes"
 yes_list = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
 # Project installation directory
-project_dir = "/home/pi/Doorbell/"
+project_dir = "/home/pi/Projects/Doorbell/"
 
 
 def GetServerFlagFromFile():
