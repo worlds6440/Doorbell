@@ -47,7 +47,7 @@ class PorchLights():
             LedStrip.LedStrip(
                 self.blinkstick,
                 self.channel_green,
-                display_mode=2
+                allow_seasonal_display=True
             )
         )
 
@@ -135,24 +135,20 @@ class PorchLights():
 
         # Is todays date on correct side of the start date
         within_start = False
-        if not straddling_year_end:
-            if date.tm_mon >= start_month and date.tm_mday >= start_day:
-                within_start = True
-        else:
-            if date.tm_mon <= start_month and date.tm_mday <= start_day:
-                within_start = True
+        if date.tm_mon >= start_month and date.tm_mday >= start_day:
+            within_start = True
 
         # Is todays date on correct side of the start date
         within_end = False
-        if not straddling_year_end:
-            if date.tm_mon <= end_month and date.tm_mday <= end_day:
-                within_end = True
-        else:
-            if date.tm_mon >= end_month and date.tm_mday >= end_day:
-                within_end = True
+        if date.tm_mon <= end_month and date.tm_mday <= end_day:
+            within_end = True
 
         # Test whether we are within date range
-        if within_start and within_end:
+        if (
+            (straddling_year_end and within_start and within_end)
+            or
+            (not straddling_year_end and (within_start or within_end))
+        ):
             return True
         else:
             return False
