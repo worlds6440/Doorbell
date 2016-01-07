@@ -304,11 +304,11 @@ def list():
     selected_ding = ""
     selected_dong = ""
     logs = ["No Log Entries..."]
-    isemail = False
+    isEmail = False
     if doorbell_s is not None:
         sockets = doorbell_s.get_socket_list()
         logs = doorbell_s.GetLogsFromFile()
-        isemail = doorbell_s.send_email
+        isEmail = doorbell_s.is_email()
 
     if doorbell_c is not None:
         wav_options = doorbell_c.get_wav_options()
@@ -329,7 +329,7 @@ def list():
         selected_dong = flask.request.form.get("selected_dong", None)
         # Push new values back to doorbell server thread
         if doorbell_s is not None:
-            doorbell_s.send_email = isemail
+            doorbell_s.set_email(isEmail)
         # Push new values back to Porch light thread
         if porchlight is not None:
             porchlight.set_all_led_colour(red, green, blue)
@@ -343,10 +343,10 @@ def list():
         if strisServer in yes_list:
             isServer = True
         # Push Email flag to main app
-        isemail = False
+        isEmail = False
         strisemail = flask.request.form.get("isemail", None)
         if strisemail in yes_list:
-            isemail = True
+            isEmail = True
         # User has changed something, must update config file
         WriteSettingsToFile()
         WriteServerFlagToFile()
@@ -362,7 +362,7 @@ def list():
         selected_ding=selected_ding,
         selected_dong=selected_dong,
         isserver=isServer,
-        isemail=isemail
+        isemail=isEmail
     )
 
 # Kick off the flask server
