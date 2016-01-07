@@ -95,48 +95,96 @@ nav a {
     width: 300px;
     height: 50px; 
 }
-.onoffswitch {
-    position: relative; width: 75px;
+
+
+.email_switch {
+    position: relative; width: 100px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 }
-.onoffswitch-checkbox {
+.email_switch-checkbox {
     display: none;
 }
-.onoffswitch-label {
+.email_switch-label {
     display: block; overflow: hidden; cursor: pointer;
     border: 2px solid #999999; border-radius: 20px;
 }
-.onoffswitch-inner {
+.email_switch-inner {
     display: block; width: 200%; margin-left: -100%;
     transition: margin 0.3s ease-in 0s;
 }
-.onoffswitch-inner:before, .onoffswitch-inner:after {
+.email_switch-inner:before, .email_switch-inner:after {
     display: block; float: left; width: 50%; height: 20px; padding: 0; line-height: 20px;
     font-size: 10px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
     box-sizing: border-box;
 }
-.onoffswitch-inner:before {
-    content: "ON";
+.email_switch-inner:before {
+    content: "Emails ON";
     padding-left: 10px;
     background-color: #34A7C1; color: #FFFFFF;
 }
-.onoffswitch-inner:after {
-    content: "OFF";
+.email_switch-inner:after {
+    content: "Emails OFF";
     padding-right: 10px;
     background-color: #EEEEEE; color: #999999;
     text-align: right;
 }
-.onoffswitch-switch {
+.email_switch-switch {
     display: block; width: 10px; margin: 5px;
     background: #FFFFFF;
     position: absolute; top: 0; bottom: 0;
-    right: 51px;
+    right: 76px;
     border: 2px solid #999999; border-radius: 20px;
     transition: all 0.3s ease-in 0s; 
 }
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+.email_switch-checkbox:checked + .email_switch-label .email_switch-inner {
     margin-left: 0;
 }
-.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+.email_switch-checkbox:checked + .email_switch-label .email_switch-switch {
+    right: 0px; 
+}
+
+.server_switch {
+    position: relative; width: 100px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.server_switch-checkbox {
+    display: none;
+}
+.server_switch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #999999; border-radius: 20px;
+}
+.server_switch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.server_switch-inner:before, .server_switch-inner:after {
+    display: block; float: left; width: 50%; height: 20px; padding: 0; line-height: 20px;
+    font-size: 10px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.server_switch-inner:before {
+    content: "Server";
+    padding-left: 10px;
+    background-color: #34A7C1; color: #FFFFFF;
+}
+.server_switch-inner:after {
+    content: "Client";
+    padding-right: 10px;
+    background-color: #EEEEEE; color: #999999;
+    text-align: right;
+}
+.server_switch-switch {
+    display: block; width: 10px; margin: 5px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 76px;
+    border: 2px solid #999999; border-radius: 20px;
+    transition: all 0.3s ease-in 0s; 
+}
+.server_switch-checkbox:checked + .server_switch-label .server_switch-inner {
+    margin-left: 0;
+}
+.server_switch-checkbox:checked + .server_switch-label .server_switch-switch {
     right: 0px; 
 }
