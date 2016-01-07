@@ -25,6 +25,8 @@ yes_list = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
 project_dir = "/home/pi/Projects/Doorbell/"
 if len(sys.argv) > 1:
     project_dir = sys.argv[1]
+# Ensure project path ends in trailing '/'
+os.path.join(project_dir, '')
 
 
 def GetServerFlagFromFile():
