@@ -20,11 +20,9 @@
 </nav>
 
 <h1>Doorbell Events</h1>
-<ul>
-	{% for date in doorbell_log %}
-	<li>{{ date }}</li>
-	{% endfor %}
-</ul>
+{% for date in doorbell_log %}
+<p id="divcorners">{{ date }}</p>
+{% endfor %}
 
 <!-- Hidden Settings Panel -->
 <div id="panel">
