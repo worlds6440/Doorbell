@@ -22,9 +22,9 @@ isServer = True
 yes_list = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
 
 # Project installation directory
-project_dir = sys.argv[1]
-if project_dir is None:
-    project_dir = "/home/pi/Projects/Doorbell/"
+project_dir = "/home/pi/Projects/Doorbell/"
+if len(sys.argv) > 1:
+    project_dir = sys.argv[1]
 
 
 def GetServerFlagFromFile():
