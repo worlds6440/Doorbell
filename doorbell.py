@@ -351,11 +351,20 @@ def list():
         WriteSettingsToFile()
         WriteServerFlagToFile()
 
+    # Ensure sockets list is a list, not None
+    if sockets is None:
+        sockets = []
+    # Ensure wave options list is a list, not None
+    if wav_options is None:
+        wav_options = []
+
     # Show changes by refreshing webpage
     # upgraded to split out RGB into three colours
     return flask.render_template(
         "index.html",
-        RDisp=red, GDisp=green, BDisp=blue,
+        RDisp=red,
+        GDisp=green,
+        BDisp=blue,
         doorbell_log=logs,
         socket_list=sockets,
         wav_options=wav_options,
