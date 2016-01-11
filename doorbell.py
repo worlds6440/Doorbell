@@ -22,9 +22,11 @@ isServer = True
 yes_list = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
 
 # Project installation directory
-project_dir = sys.argv[1]
-if project_dir is None:
-    project_dir = "/home/pi/Projects/Doorbell/"
+project_dir = "/home/pi/Projects/Doorbell/"
+if len(sys.argv) > 1:
+    project_dir = sys.argv[1]
+# Ensure project path ends in trailing '/'
+os.path.join(project_dir, '')
 
 
 def GetServerFlagFromFile():
@@ -302,9 +304,11 @@ def list():
     selected_ding = ""
     selected_dong = ""
     logs = ["No Log Entries..."]
+    isEmail = False
     if doorbell_s is not None:
         sockets = doorbell_s.get_socket_list()
         logs = doorbell_s.GetLogsFromFile()
+        isEmail = doorbell_s.is_email()
 
     if doorbell_c is not None:
         wav_options = doorbell_c.get_wav_options()
@@ -323,6 +327,9 @@ def list():
         # Doorbell Sounds
         selected_ding = flask.request.form.get("selected_ding", None)
         selected_dong = flask.request.form.get("selected_dong", None)
+        # Push new values back to doorbell server thread
+        if doorbell_s is not None:
+            doorbell_s.set_email(isEmail)
         # Push new values back to Porch light thread
         if porchlight is not None:
             porchlight.set_all_led_colour(red, green, blue)
@@ -335,21 +342,36 @@ def list():
         strisServer = flask.request.form.get("isserver", None)
         if strisServer in yes_list:
             isServer = True
+        # Push Email flag to main app
+        isEmail = False
+        strisemail = flask.request.form.get("isemail", None)
+        if strisemail in yes_list:
+            isEmail = True
         # User has changed something, must update config file
         WriteSettingsToFile()
         WriteServerFlagToFile()
+
+    # Ensure sockets list is a list, not None
+    if sockets is None:
+        sockets = []
+    # Ensure wave options list is a list, not None
+    if wav_options is None:
+        wav_options = []
 
     # Show changes by refreshing webpage
     # upgraded to split out RGB into three colours
     return flask.render_template(
         "index.html",
-        RDisp=red, GDisp=green, BDisp=blue,
+        RDisp=red,
+        GDisp=green,
+        BDisp=blue,
         doorbell_log=logs,
         socket_list=sockets,
         wav_options=wav_options,
         selected_ding=selected_ding,
         selected_dong=selected_dong,
-        isserver=isServer
+        isserver=isServer,
+        isemail=isEmail
     )
 
 # Kick off the flask server

@@ -76,6 +76,28 @@ class DoorBell_Server:
             self.lock.release()
         return isexit
 
+    def set_email(self, send_email):
+        # Grab the lock to the list of sockets
+        self.lock.acquire()
+        try:
+            # Fill list with socket information
+            self.send_email = send_email
+        finally:
+            # Release the list of sockets
+            self.lock.release()
+
+    def is_email(self):
+        # Grab the lock to the list of sockets
+        send_email = False
+        self.lock.acquire()
+        try:
+            # Fill list with socket information
+            send_email = self.send_email
+        finally:
+            # Release the list of sockets
+            self.lock.release()
+        return send_email
+
     def SocketServer(self):
         """ Infinite loop listening for new incoming socket connections """
         ADDR = (self.HOST, self.PORT)
