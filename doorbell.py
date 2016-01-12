@@ -327,6 +327,11 @@ def list():
         # Doorbell Sounds
         selected_ding = flask.request.form.get("selected_ding", None)
         selected_dong = flask.request.form.get("selected_dong", None)
+        # Push Email flag to main app
+        isEmail = False
+        strisemail = flask.request.form.get("isemail", None)
+        if strisemail in yes_list:
+            isEmail = True
         # Push new values back to doorbell server thread
         if doorbell_s is not None:
             doorbell_s.set_email(isEmail)
@@ -342,11 +347,6 @@ def list():
         strisServer = flask.request.form.get("isserver", None)
         if strisServer in yes_list:
             isServer = True
-        # Push Email flag to main app
-        isEmail = False
-        strisemail = flask.request.form.get("isemail", None)
-        if strisemail in yes_list:
-            isEmail = True
         # User has changed something, must update config file
         WriteSettingsToFile()
         WriteServerFlagToFile()
