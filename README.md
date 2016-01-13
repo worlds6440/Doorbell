@@ -1,7 +1,7 @@
 # Doorbell
 ========
 
-A Raspberry Pi powered network doorbell server and client, with option for a Blinkstick powered RGB LED porch light.
+A Raspberry Pi powered network doorbell server and client, with option for a [Blinkstick](https://www.blinkstick.com/) powered RGB LED porch light.
 
 My old standard doorbell ringer wasn*t powerful enough to be heard throughout the house, so a doorbell with remote ringers was needed. Rather than using standard RF doorbells which may or may not reach the required distance, I decided to create a Pi powered doorbell and ringer that would work over the existing network, eliminating the need for further wires.
 
@@ -16,15 +16,16 @@ My old standard doorbell ringer wasn*t powerful enough to be heard throughout th
 	sudo pip install Flask
 
 ## Configure Doorbell Server:
-Edit *doorbell.py* and change project directory if you have put the project in a different location.  
-Edit *Doorbell_server.py* and change SMTP details.  
 
-(Assuming the server pi also is a client)
-Edit *Doorbell_Client.py* and change server IP.  
+Edit [doorbell.py](doorbell.py) and change project directory if you have put the project in a different location.  
+Edit [Doorbell_server.py](Doorbell_server.py) and change SMTP details.  
+
+Assuming the server pi also is a client  
+Edit [Doorbell_Client.py](Doorbell_Client.py) and change server IP.  
 
 ## Configure Doorbell Client:
-Edit *Doorbell_Client.py* and change server IP.  
-Edit *doorbell.py* and change isServer to False.  
+Edit [Doorbell_Client.py](Doorbell_Client.py) and change server IP.  
+Edit [doorbell.py](doorbell.py) and change isServer to False.  
 
 ## To Test:
 	sudo python doorbell.py
@@ -41,7 +42,7 @@ Add the following line to the end of the file(corrected for project directory of
 	sudo chmod +x *.sh
 
 ## And finally, to run at boot:
-Ensure *doorbell* init.d script file contains correct project install path.  
+Ensure [doorbell](doorbell) init.d script file contains correct project install path.  
 	sudo cp /home/pi/Projects/Doobell/doorbell /etc/init.d/
 	sudo chmod +x /etc/init.d/doorbell
 	sudo update-rc.d doorbell defaults
