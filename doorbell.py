@@ -18,6 +18,7 @@ doorbell_c = None
 doorbell_s = None
 porchlight = None
 isServer = True
+is_porchlight = True
 # List of text values user can type in that mean "yes"
 yes_list = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
 
@@ -97,10 +98,8 @@ Thread_3 = threading.Thread(target=doorbell_c.SocketClient)
 Thread_3.start()
 
 # Porch Lights
-if isServer:
+if is_porchlight:
     porchlight = PorchLights.PorchLights()
-    # No longer need to call this as using actual constructor
-    #porchlight.constructor()
     # Change the number of LEDs for r_led_count
     Thread_4 = threading.Thread(target=porchlight.run)
     Thread_4.start()
@@ -256,10 +255,10 @@ def dingdong():
     # POST or PUT -- Manually call a ding dong event
     if (
         (
-            flask.request.method == "POST"
-            or flask.request.method == "PUT"
-        )
-        and (doorbell_s is not None)
+            flask.request.method == "POST" or
+            flask.request.method == "PUT"
+        ) and
+        (doorbell_s is not None)
     ):
         doorbell_s.Ding()
         time.sleep(0.5)
