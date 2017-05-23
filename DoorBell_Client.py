@@ -21,7 +21,7 @@ class DoorBell_Client:
         self.selected_dong = ""
 
         self.BUFF = 1024
-        self.HOST = '192.168.1.107'
+        self.HOST = '127.0.0.1'
         self.PORT = 9999
 
         self.exit = False  # flag set when we want the process to exit
@@ -104,12 +104,16 @@ class DoorBell_Client:
         return
 
     def SocketClient(self):
-        self.s_client = socketclient.SocketClient(self,
-                                                  BUFF=self.BUFF,
-                                                  HOST=self.HOST,
-                                                  PORT=self.PORT)
-        # This method blocks forever.
-        self.s_client.start()
+        try:
+            self.s_client = socketclient.SocketClient(self,
+                                                      BUFF=self.BUFF,
+                                                      HOST=self.HOST,
+                                                      PORT=self.PORT)
+            # This method blocks forever.
+            self.s_client.start()
+        except KeyboardInterrupt:
+            print("Ctrl+C Pressed.")
+            self.s_client.stop()
 
     # def SocketClient(self):
     #     """ Look infinitely waiting for socket data """

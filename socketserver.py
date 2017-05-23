@@ -5,7 +5,7 @@ import threading
 
 class SocketServer:
 
-    def __init__(self):
+    def __init__(self, BUFF=1024, HOST='', PORT=9999):
         """ Default Constructor """
         self.running = False
         # Thread Locking
@@ -13,9 +13,9 @@ class SocketServer:
 
         # List of open connections
         self.socketList = dict()
-        self.BUFF = 1024
-        self.HOST = ''
-        self.PORT = 9999
+        self.BUFF = BUFF
+        self.HOST = HOST
+        self.PORT = PORT
         self.socket_timeout = 1.0
         self.socket_tick = 30  # send keep alive every 30 seconds
 
@@ -27,6 +27,9 @@ class SocketServer:
     def start(self):
         """ Kill the server's endles loop """
         self.running = True
+
+        if self.DEBUG:
+            print("Starting Socket Server Thread")
 
         self.Thread_1 = threading.Thread(target=self.listen_loop)
         self.Thread_1.start()
