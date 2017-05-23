@@ -4,6 +4,7 @@ import subprocess
 import time
 import socket
 import os
+import socketclient
 
 
 class DoorBell_Client:
@@ -12,7 +13,7 @@ class DoorBell_Client:
         self.DEBUG = False
         self.playing = []  # List of dings and dongs
         self.limit_number = 4
-        self.s = None
+
         self.lastPing = time.time()
         self.lock = threading.Lock()
 
@@ -20,11 +21,11 @@ class DoorBell_Client:
         self.selected_dong = ""
 
         self.BUFF = 1024
-        self.HOST = '192.168.1.248'  # must be input parameter @TODO
-        self.PORT = 9999  # must be input parameter @TODO
+        self.HOST = '192.168.1.107'
+        self.PORT = 9999
 
         self.exit = False  # flag set when we want the process to exit
-        return
+        self.s_client = None
 
     def set_exit(self):
         # Grab the lock to the list of sockets
@@ -32,6 +33,7 @@ class DoorBell_Client:
         try:
             # Fill list with socket information
             self.exit = True
+            self.s_client.stop()
         finally:
             # Release the list of sockets
             self.lock.release()
@@ -102,84 +104,92 @@ class DoorBell_Client:
         return
 
     def SocketClient(self):
-        """ Look infinitely waiting for socket data """
-        bQuit = False
-        while not bQuit:
-            # Check exit flag on each loop
-            if self.is_exit():
-                return
+        self.s_client = socketclient.SocketClient(self,
+                                                  BUFF=self.BUFF,
+                                                  HOST=self.HOST,
+                                                  PORT=self.PORT)
+        # This method blocks forever.
+        self.s_client.start()
 
-            # If no socket, create one and try to connect
-            if self.s is None:
-                if self.DEBUG:
-                    print("Connecting to :", self.HOST)
-                ADDR = (self.HOST, self.PORT)
-                self.s = socket.socket()
-                try:
-                    self.s.connect(ADDR)
-                    if self.DEBUG:
-                        print("Connected")
-                except:
-                    self.s = None
+    # def SocketClient(self):
+    #     """ Look infinitely waiting for socket data """
+    #     bQuit = False
+    #     while not bQuit:
+    #         # Check exit flag on each loop
+    #         if self.is_exit():
+    #             return
 
-            if self.s is not None:
-                try:
-                    # Wait for socket data
-                    rec_data = self.s.recv(self.BUFF)
+    #         # If no socket, create one and try to connect
+    #         if self.s is None:
+    #             if self.DEBUG:
+    #                 print("Connecting to :", self.HOST)
+    #             ADDR = (self.HOST, self.PORT)
+    #             self.s = socket.socket()
+    #             try:
+    #                 self.s.connect(ADDR)
+    #                 if self.DEBUG:
+    #                     print("Connected")
+    #             except:
+    #                 self.s = None
 
-                    if self.DEBUG:
-                        print(rec_data.lstrip())
+    #         if self.s is not None:
+    #             try:
+    #                 # Wait for socket data
+    #                 rec_data = self.s.recv(self.BUFF)
 
-                    if rec_data.lstrip() == "OpenConn":
-                        # Return handshake response
-                        self.s.send("OpenConn")
+    #                 if self.DEBUG:
+    #                     print(rec_data.lstrip())
 
-                    elif rec_data.lstrip() == "DING":
-                        # Return handshake response
-                        self.s.send("DING")
-                        self.Ding()
+    #                 if rec_data.lstrip() == "OpenConn":
+    #                     # Return handshake response
+    #                     self.s.send("OpenConn")
 
-                    elif rec_data.lstrip() == "DONG":
-                        # Return handshake response
-                        self.s.send("DONG")
-                        self.Dong()
+    #                 elif rec_data.lstrip() == "DING":
+    #                     # Return handshake response
+    #                     self.s.send("DING")
+    #                     self.ding()
 
-                    elif rec_data.lstrip() == "PING":
-                        # Return handshake response
-                        self.s.send("PING")
+    #                 elif rec_data.lstrip() == "DONG":
+    #                     # Return handshake response
+    #                     self.s.send("DONG")
+    #                     self.dong()
 
-                    # Remember the last communication time
-                    #lastPing = time.time()
+    #                 elif rec_data.lstrip() == "PING":
+    #                     # Return handshake response
+    #                     self.s.send("PING")
 
-                except KeyboardInterrupt:
-                    # CTRL-C pressed, shut everything down
-                    self.lock.acquire()
-                    try:
-                        self.s.shutdown(socket.SHUT_RDWR)
-                        self.s.close()
-                        self.s = None
-                        bQuit = True
-                    finally:
-                        self.lock.release()
-                    if self.DEBUG:
-                        print("User hit ctrl-c")
-                except socket.error:
-                    # Socket error
-                    self.lock.acquire()
-                    try:
-                        self.s.shutdown(socket.SHUT_RDWR)
-                        self.s.close()
-                        self.s = None
-                    finally:
-                        self.lock.release()
-                    if self.DEBUG:
-                        print("Socket Error")
-            else:
-                # Sleep so we dont retry instantly
-                time.sleep(1)
-        return
+    #                 # Remember the last communication time
+    #                 #lastPing = time.time()
 
-    def Ding(self):
+    #             except KeyboardInterrupt:
+    #                 # CTRL-C pressed, shut everything down
+    #                 self.lock.acquire()
+    #                 try:
+    #                     self.s.shutdown(socket.SHUT_RDWR)
+    #                     self.s.close()
+    #                     self.s = None
+    #                     bQuit = True
+    #                 finally:
+    #                     self.lock.release()
+    #                 if self.DEBUG:
+    #                     print("User hit ctrl-c")
+    #             except socket.error:
+    #                 # Socket error
+    #                 self.lock.acquire()
+    #                 try:
+    #                     self.s.shutdown(socket.SHUT_RDWR)
+    #                     self.s.close()
+    #                     self.s = None
+    #                 finally:
+    #                     self.lock.release()
+    #                 if self.DEBUG:
+    #                     print("Socket Error")
+    #         else:
+    #             # Sleep so we dont retry instantly
+    #             time.sleep(1)
+    #     return
+
+    def ding(self):
         """ Play Ding Sound """
         self.processPlaying(self.playing, self.limit_number)
         filename = 'sounds/' + self.selected_ding
@@ -189,7 +199,7 @@ class DoorBell_Client:
             )
         return
 
-    def Dong(self):
+    def dong(self):
         """ Play Dong Sound """
         self.processPlaying(self.playing, self.limit_number)
         filename = 'sounds/' + self.selected_dong
