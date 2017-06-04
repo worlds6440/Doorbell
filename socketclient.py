@@ -19,9 +19,9 @@ class SocketClient:
         self.timeout_counts = 0
         self.max_timeout_counts = 60
 
-        self.BUFF = 1024
-        self.HOST = '192.168.1.107'
-        self.PORT = 9999
+        self.BUFF = BUFF
+        self.HOST = HOST
+        self.PORT = PORT
         self.client_sock = None
 
         self.Thread_1 = None
@@ -75,8 +75,8 @@ class SocketClient:
                 # We have a valid socket, wait for date to be sent to it.
                 try:
                     # Wait for socket data
-                    if self.DEBUG:
-                        print("Waiting for Data")
+                    # if self.DEBUG:
+                    #     print("Waiting for Data")
                     rec_data = self.client_sock.recv(self.BUFF)
 
                     if rec_data == "" or rec_data is None:
@@ -132,9 +132,9 @@ class SocketClient:
                     if e.errno is None:
                         # Didn't receive anything yet. Count up how many times
                         # we get here and kill connection if more than X counts
-                        if self.DEBUG:
-                            print("Timeout tick...{}".format(
-                                self.timeout_counts))
+                        # if self.DEBUG:
+                        #     print("Timeout tick...{}".format(
+                        #         self.timeout_counts))
                         self.timeout_counts = self.timeout_counts + 1
                         if self.timeout_counts >= self.max_timeout_counts:
                             if self.DEBUG:

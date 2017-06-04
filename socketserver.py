@@ -22,7 +22,7 @@ class SocketServer:
         self.Thread_1 = None
         self.Thread_2 = None
 
-        self.DEBUG = True
+        self.DEBUG = False
 
     def start(self):
         """ Kill the server's endles loop """
@@ -72,18 +72,20 @@ class SocketServer:
         # Gives thread ability to exit.
         self.serversock.settimeout(1)
 
+        clientsock = None
         while self.running:
             # Blocks until new connection
             try:
-                if self.DEBUG:
-                    print("Listening...")
+                # if self.DEBUG:
+                #     print("Listening...")
                 clientsock, addr = self.serversock.accept()
             except socket.timeout:
                 clientsock = None
+            except:
+                pass
 
             if clientsock is not None:
-                if self.DEBUG:
-                    print("Socket Opened...")
+                print("SERVER: Socket Opened...")
 
                 # New socket must have a timeout for blocking connections
                 clientsock.settimeout(self.socket_timeout)
@@ -96,8 +98,7 @@ class SocketServer:
                     clientsock.recv(self.BUFF)
 
                 except socket.timeout:
-                    if self.DEBUG:
-                        print("Timed Out...")
+                    print("SERVER: Handshake timed out...")
                     clientsock.close()
                     clientsock = None
                 except socket.error:

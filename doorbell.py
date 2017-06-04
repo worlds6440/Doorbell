@@ -295,8 +295,11 @@ def list():
     red = 0
     green = 0
     blue = 0
-    if porchlight is not None:
-        red, green, blue = porchlight.get_led_colour(0)
+    try:
+        if porchlight is not None:
+            red, green, blue = porchlight.get_led_colour(0)
+    except:
+        pass
 
     # Get the list of sockets to display onto the website
     sockets = []
@@ -305,10 +308,12 @@ def list():
     selected_dong = ""
     logs = ["No Log Entries..."]
     isEmail = False
+
     if doorbell_s is not None:
         sockets = doorbell_s.get_socket_list()
         logs = doorbell_s.GetLogsFromFile()
         isEmail = doorbell_s.is_email()
+        print(sockets)
 
     if doorbell_c is not None:
         wav_options = doorbell_c.get_wav_options()

@@ -1,0 +1,11 @@
+[Unit]
+Description=Doorbell
+After=multi-user.target
+ 
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /home/pi/Projects/Doorbell/doorbell.py
+Restart=on-abort
+ 
+[Install]
+WantedBy=multi-user.target

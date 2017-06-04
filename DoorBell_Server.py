@@ -232,12 +232,18 @@ class DoorBell_Server:
         # Read the log file and return the list of entries
         filename = "doorbell.txt"
         logs = ["No Entires"]
-        with open(filename, "r") as myfile:
-            logs = [x.strip('\n') for x in myfile.readlines()]
-            myfile.close()
+
+        try:
+            with open(filename, "r") as myfile:
+                logs = [x.strip('\n') for x in myfile.readlines()]
+                myfile.close()
+        except:
+            pass
+
         # Log is returned in ascending date.
         # We want it reversed
-        logs.reverse()
+        if logs is not None and len(logs):
+            logs.reverse()
         return logs
 
     def main(self):
@@ -302,6 +308,9 @@ class DoorBell_Server:
         """ Return a list of string host names
         that are connected to this doorbell. """
         socket_list = []
-        if self.s_server:
-            socket_list = self.s_server.get_socket_list()
+        try:
+            if self.s_server:
+                socket_list = self.s_server.get_socket_list()
+        except:
+            pass
         return socket_list
