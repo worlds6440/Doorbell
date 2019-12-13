@@ -52,7 +52,7 @@ class SocketServer:
             if loopCount >= self.socket_tick:
                 # Send PING to all sockets
                 loopCount = 0
-                self.SendToSockets("PING")
+                self.SendToSockets("PING\n")
 
             # Sleep for 1 second intervals
             time.sleep(1)
@@ -92,7 +92,7 @@ class SocketServer:
 
                 # Handshake
                 try:
-                    clientsock.send("OpenConn")
+                    clientsock.send("OpenConn\n")
                     # Receive data
                     # (returned data not used yet but needs to do it)
                     clientsock.recv(self.BUFF)

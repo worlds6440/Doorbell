@@ -145,9 +145,8 @@ class PorchLights():
 
         # Test whether we are within date range
         if (
-            (straddling_year_end and within_start and within_end)
-            or
-            (not straddling_year_end and (within_start or within_end))
+            (not straddling_year_end and within_start and within_end) or
+            (straddling_year_end and (within_start or within_end))
         ):
             return True
         else:
@@ -191,15 +190,15 @@ class PorchLights():
                         if prev_should_be_on != shouldBeOn:
                             led_state_change = True
                             # Christmas Display Period
-                            if self.is_in_date_range(12, 18, 1, 5):
+                            if self.is_in_date_range(12, 1, 1, 5):
                                 christmas_display = True
 
                         for item in self.channel:
                             # If light allows seasonal display, set its
                             #  mode here BEFORE we turn it on
                             if (
-                                led_state_change
-                                and item.allow_seasonal_display
+                                led_state_change and
+                                item.allow_seasonal_display
                             ):
                                 # Changeover
                                 if christmas_display:

@@ -6,19 +6,28 @@ import time
 # import socket
 import smtplib
 import socketserver
-
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+from email.MIMEBase import MIMEBase
+from email import encoders
+from email.utils import COMMASPACE, formatdate
+import logging
+import subprocess
+import os
+import time
 
 class DoorBell_Server:
     def __init__(self):
         # Member variables
         self.DEBUG = False
+        logging.basicConfig(filename='/home/pi/Projects/Doorbell/email.log',level=logging.DEBUG)
 
         # SMTP login details
-        self.send_email = False
-        self.LOGIN = "EMAIL@EMAIL.COM"
-        self.PASSWORD = "PASSWORD"
-        self.FROMADDR = "EMAIL@EMAIL.COM"
-        self.TOADDRS = ["EMAIL@EMAIL.COM"]
+        self.send_email = True
+        self.LOGIN = "worlds6440@gmail.com"
+        self.PASSWORD = "obib00th"
+        self.FROMADDR = "worlds6440@gmail.com"
+        self.TOADDRS = ["worlds6440@gmail.com"]
         self.SUBJECT = "Doorbell Pressed"
         self.SMTP_SERVER = "smtp.gmail.com"
         # TEXT = "The doorbell was just pressed."
@@ -86,36 +95,93 @@ class DoorBell_Server:
         Note that the TO variable must be a list, and that you have
         to add the From, To, and Subject headers to the message yourself. """
         if self.send_email:
-            # Prepare message headers
-            msg = (
-                "From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
-                % (self.FROMADDR, ", ".join(self.TOADDRS), self.SUBJECT)
-            )
 
-            # Message body
-            localtime = time.asctime(time.localtime(time.time()))
-            msg += "Doorbell pressed (" + localtime + ")\r\n"
+            #os.system('ssh pi@192.168.1.105 "python /home/pi/Projects/clear_folders/make_video.py"')
+            #if not os.path.exists('/home/pi/Projects/Doorbell/pi/Projects/clear_folders/'):
+            #    os.system('sshfs  pi@192.168.1.105: /home/pi/Projects/Doorbell/pi/')
+            #os.system('mv /home/pi/Projects/Doorbell/pi/Projects/clear_folders/*.mp4 /home/pi/Projects/Doorbell/')
+            #os.system('sudo umount /home/pi/Projects/Doorbell/pi/')
 
-            # Send the mail
             try:
-                server = smtplib.SMTP(self.SMTP_SERVER, 587)
-                server.set_debuglevel(0)  # Debug output == 1
-                server.ehlo()
-                server.starttls()
-                server.login(self.LOGIN, self.PASSWORD)
-                server.sendmail(self.FROMADDR, self.TOADDRS, msg)
-                server.quit()
-                if self.DEBUG:
-                    print("Successfully sent email")
-            except (KeyboardInterrupt, SystemExit):
-                if self.DEBUG:
-                    print("Error: unable to send email")
+                logging.debug('Making remote video')
+                returned_value = subprocess.call('ssh -i /home/pi/.ssh/id_rsa pi@192.168.1.105 "python /home/pi/Projects/clear_folders/make_video.py"', shell=True)
+                logging.debug(returned_value)
+                if not os.path.exists('/home/pi/Projects/Doorbell/pi/Projects/clear_folders/'):
+                    logging.debug('Mounting SSHFS Directory')
+                    returned_value = subprocess.call('sshfs -o IdentityFile=/home/pi/.ssh/id_rsa pi@192.168.1.105: /home/pi/Projects/Doorbell/pi/', shell=True)
+                    logging.debug(returned_value)
+                logging.debug('Moving remote file to local system')
+                returned_value = subprocess.call('mv /home/pi/Projects/Doorbell/pi/Projects/clear_folders/*.mp4 /home/pi/Projects/Doorbell/', shell=True)
+                logging.debug(returned_value)
+                logging.debug('Unmounting SSHFS')
+                returned_value = subprocess.call('sudo umount /home/pi/Projects/Doorbell/pi/', shell=True)
+                logging.debug(returned_value)
+            except Exception as e:
+                logging.debug(e)
+
+            filename_list = []
+            for file in os.listdir("/home/pi/Projects/Doorbell/"):
+                if file.endswith(".mp4"):
+                    filename_list.append(os.path.join("/home/pi/Projects/Doorbell", file))
+
+            logging.debug('Making Message')
+            try:
+                # Message body
+                localtime = time.asctime(time.localtime(time.time()))
+                text = "Doorbell pressed (" + localtime + ")\r\n"
+
+                # Prepare message headers
+                msg = MIMEMultipart()
+                msg['From'] = self.FROMADDR
+                msg['To'] = ", ".join(self.TOADDRS)
+                msg['Date'] = formatdate(localtime=True)
+                msg['Subject'] = self.SUBJECT
+                msg.attach(MIMEText(text))
+                #msg = (
+                #    "From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
+                #    % (self.FROMADDR, ", ".join(self.TOADDRS), self.SUBJECT)
+                #)
+
+                # Attach file
+                if len(filename_list):
+                    logging.debug('Attaching File')
+                    path, filename = os.path.split(filename_list[0])
+                    attachment = open(filename_list[0], "rb")
+
+                    part = MIMEBase('application', 'octet-stream')
+                    part.set_payload((attachment).read())
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+                    msg.attach(part)
+
+                logging.debug('Attempting to send email')
+                # Send the mail
+                try:
+                    server = smtplib.SMTP(self.SMTP_SERVER, 587)
+                    server.set_debuglevel(0)  # Debug output == 1
+                    server.ehlo()
+                    server.starttls()
+                    server.login(self.LOGIN, self.PASSWORD)
+                    server.sendmail(self.FROMADDR, self.TOADDRS, msg.as_string())
+                    server.quit()
+                    if self.DEBUG:
+                        print("Successfully sent email")
+                except (KeyboardInterrupt, SystemExit):
+                    logging.debug('Error sending email')
+                    if self.DEBUG:
+                        print("Error: unable to send email")
+
+                # Delete mp4 files
+                for file in filename_list:
+                    os.remove(file)
+            except Exception as e:
+                logging.debug(e)
 
     def Ding(self):
         # Thin out audio playing list
         self.processPlaying(self.playing, self.limit_number)
         # Send DING to all sockets
-        self.SendToSockets("DING")
+        self.SendToSockets("DING\n")
         # Turn LED ON and play sound
         GPIO.output(self.pin_led, True)
 
@@ -123,7 +189,7 @@ class DoorBell_Server:
         # Thin out audio playing list
         self.processPlaying(self.playing, self.limit_number)
         # Send DING to all sockets
-        self.SendToSockets("DONG")
+        self.SendToSockets("DONG\n")
         # Turn LED OFF and play sound
         GPIO.output(self.pin_led, False)
 

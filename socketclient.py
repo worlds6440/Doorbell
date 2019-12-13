@@ -83,9 +83,14 @@ class SocketClient:
                         raise ValueError("Socket appears to be "
                                          "closed at other end.")
 
+
+
                     # If we get here, we received
                     # data and didn't throw "except"
                     self.timeout_counts = 0
+
+                    # Remove any line returns
+                    rec_data = rec_data.replace("\n", "")
 
                     if self.DEBUG:
                         print(rec_data.lstrip())

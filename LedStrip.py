@@ -3,6 +3,7 @@ import time
 import threading
 from random import randint
 
+from blinkstick import blinkstick
 
 class LedStrip():
 
@@ -174,6 +175,7 @@ class LedStrip():
         """ Switch the lights on (if not already on) """
         if not self.is_on() or force:
             if self.led_mode == self.led_mode_standard:
+                print("Lights ON - Standard")
                 # Get current LED colour and colour it should be
                 r, g, b = self.get_led_colour()
                 current_r, current_g, current_b = self.get_current_led_colour()
@@ -181,6 +183,7 @@ class LedStrip():
                 self.phase_lights(current_r, current_g, current_b, r, g, b)
 
             if self.led_mode == self.led_mode_christmas:
+                print("Lights ON - Christmas")
                 # Kick off internal thread to constantly change lights
                 if self.led_thread is None:
                     # Ensure thread killing flag is cleared
@@ -197,6 +200,7 @@ class LedStrip():
     def switch_off(self, force=False):
         """ Switch the lights off (if not already off) """
         if self.is_on() or force:
+            print("Lights OFF")
             if self.led_thread is None:
                 # Get current LED colour and colour it should be
                 current_r, current_g, current_b = self.get_current_led_colour()
@@ -245,7 +249,8 @@ class LedStrip():
                 from_index = 1
             # Set every other LED to the required colour
             for i in range(from_index, (led_count-1), 2):
-                    self.blinkstick.set_color(self.channel, i, r, g, b)
+                self.blinkstick.set_color(self.channel, i, r, g, b)
+            self.blinkstick.send_data_all()
         finally:
             self.lock.release()
 
@@ -299,6 +304,33 @@ class LedStrip():
             else:
                 x = x-1
 
+    def rainbowCycle(self, SpeedDelay):
+        for j in range(0, 256*5):
+            for i in range(0, self.led_count()):
+                c = self.Wheel(((i * 256 / self.led_count()) + j) & 255)
+                self.blinkstick.set_color(self.channel, i, c[0], c[1], c[2])
+            self.blinkstick.send_data_all()
+            time.sleep(SpeedDelay)
+
+    def Wheel(self, WheelPos):
+        c = [0, 0, 0]
+
+        if (WheelPos < 85):
+            c[0] = WheelPos * 3
+            c[1] = 255 - WheelPos * 3
+            c[2] = 0
+        elif (WheelPos < 170):
+            WheelPos -= 85
+            c[0] = 255 - WheelPos * 3
+            c[1] = 0
+            c[2] = WheelPos * 3
+        else:
+            WheelPos -= 170
+            c[0] = 0
+            c[1] = WheelPos * 3
+            c[2] = 255 - WheelPos * 3
+        return c
+
     def christmas_display_1(self):
         """ Loop indefinitely displaying
         christmassy themed lighting display """
@@ -309,6 +341,8 @@ class LedStrip():
                 self.set_all(0, 0, 0)
                 return
 
+            print("XMas LED Loop")
+
             self.effect_set_even_odd(255, 0, 0, even=True)
             self.effect_set_even_odd(0, 255, 0, even=False)
             # Pause for a small time
@@ -318,6 +352,8 @@ class LedStrip():
             self.effect_set_even_odd(255, 0, 0, even=False)
             # Pause for a small time
             time.sleep(0.5)
+
+            self.rainbowCycle(0.001)
 
     def christmas_display_2(self):
         try:
@@ -351,3 +387,22 @@ class LedStrip():
         except KeyboardInterrupt:
             self.off()
             return
+
+
+if __name__ == "__main__":
+    blink_stick = blinkstick.BlinkStickPro(
+            r_led_count=5,  # Standard LED Porch Light
+            g_led_count=20,  # Secondary LED strip / Christmas Lights
+            max_rgb_value=255
+        )
+    if blink_stick.connect():
+        blink_stick.send_data_all()
+
+        lights = LedStrip(blink_stick, 1, allow_seasonal_display=False)
+        lights.set_led_colour(0, 255, 0)
+        lights.led_mode = lights.led_mode_christmas
+        # lights.led_mode = lights.led_mode_standard
+        lights.switch_on()
+        time.sleep(10)
+        lights.switch_off()
+        lights.set_exit()
